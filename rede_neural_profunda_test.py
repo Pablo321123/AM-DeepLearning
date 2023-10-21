@@ -357,6 +357,7 @@ class TestRedeNeural(unittest.TestCase):
         expected = [0.0036241470553106283,8.316717230816547e-06,
                     0.9990737642484306,0.9968156936168789]
         self.assertListAlmostEqual(expected,list(self.redeNeural.arr_camadas[1].arr_unidades[0].arr_a),"A saida final nao está com o valor previsto!")
+   
     def test_predict(self):
         self.test_fit()
         mat_x =         np.array([[0.1,0.01,0.4,0.5],#instancia 1
@@ -368,6 +369,7 @@ class TestRedeNeural(unittest.TestCase):
         arr_predicts = self.redeNeural.predict(mat_x)
         self.assertEquals(len(arr_predicts),5, "Quantidade de resultados inesperada")
         self.assertListEqual(list(self.redeNeural.predict(mat_x)),[0, 0, 1, 1, 0])
+   
     def atualiza_pesos(self):
         #atualiza pesos de cada camada
         arr_camada_peso_idx = [0,2]
@@ -380,5 +382,6 @@ class TestRedeNeural(unittest.TestCase):
         self.redeNeural  = RedeNeural([3,2],
                                             [relu,sigmoid],
                                             100)
+
 if __name__ == "__main__":
     unittest.main()
