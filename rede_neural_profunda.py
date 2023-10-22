@@ -33,22 +33,20 @@ sigmoid = FuncaoAtivacao(
 )
 
 relu = FuncaoAtivacao(
-    lambda z: np.maximum(0, z),
+    lambda z: z*(z>=0), #np.maximum(0, z), -> Ora Resulta em resultados em que não sao condicentes com a equação matématica 
     lambda a, z, y, arr_dz_w_prox: (z >= 0) * arr_dz_w_prox,
 )
 
 alpha = 0.01
 leaky_relu = FuncaoAtivacao(
-    lambda z: np.maximum(alpha * z, z),
-    lambda a, z, y, arr_dz_w_prox: np.where(z >= 0, 1, alpha)
-    * arr_dz_w_prox,  # Onde z tem um valor >= a 0, retornara 1, caso contrario 0.01
+    lambda z:  (z*(z>0)) + ((alpha * z) * (z <=0)),   #np.maximum(alpha * z, z), -> mesmo caso da relu
+    lambda a, z, y, arr_dz_w_prox: np.where(z >= 0, 1, alpha) * arr_dz_w_prox,  # Onde z tem um valor >= a 0, retornara 1, caso contrario 0.01
 )
 
 
 tanh = FuncaoAtivacao(
-    lambda z: (np.exp(z) - np.exp(-z)) / (np.exp(z) + np.exp(-z)),
-    lambda a, z, y, arr_dz_w_prox: (1 - np.power(np.tanh(a), 2)),
-)
+    lambda z: np.tanh(z), #(np.exp(z) - np.exp(-z)) / (np.exp(z) + np.exp(-z)) -> Deu overflow no teste com 3000 epocas,
+    lambda a, z, y, arr_dz_w_prox: 1 - np.power(a,2)) # (1 - np.power(np.tanh(a), 2)) -> Passou no teste automatizado, porém resulta em uma falha com varios elementos com loss repetidos!
 
 
 class Unidade:
@@ -366,13 +364,11 @@ class RedeNeural:
         # ..ativações (arr_a) apropriado. Fique atento com qual camada/unidade você deverá
         # ..obter o arr_a. Preencha os None com o valor apropriado
 
-        arr_a = self.arr_camadas[-1].arr_unidades[0].arr_a #ultima camada, e a única unidade restante combinada
+        arr_a = (self.arr_camadas[-1].arr_unidades[0].arr_a)  # ultima camada, e a única unidade restante combinada
         # print("ARRAY Y: "+str(arr_y))
         # print("ARRAY A: "+str(arr_a))
 
-        return np.sum(-(arr_y * np.log(arr_a) + (1 - arr_y) * np.log(1 - arr_a))) / len(
-            arr_y
-        )
+        return np.sum(-(arr_y * np.log(arr_a) + (1 - arr_y) * np.log(1 - arr_a))) / len(arr_y)
 
     def predict(self, mat_x):
         """
@@ -388,4 +384,4 @@ class RedeNeural:
         # print(self.arr_a)
         arr_a = self.arr_camadas[-1].arr_unidades[0].arr_a
 
-        return (arr_a > 0.5)
+        return arr_a > 0.5
